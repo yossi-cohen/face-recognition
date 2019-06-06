@@ -7,7 +7,7 @@ def create_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--method", type=str, 
         default="dnn",
-        metavar='', help="face detection method to use: `haar`, `hog`, 'lbp' or `dnn'")
+        metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
     parser.add_argument("-t", "--threshold", type=float, 
         default=0.5,
         metavar='', help="threshold for probability to filter not-so-confident detections")

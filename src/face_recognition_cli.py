@@ -80,10 +80,10 @@ def create_argparser():
         default="examples/face_recognition/known_faces", 
         metavar='', help="known faces folder path")
     parser.add_argument("-e", "--encodings", type=str,  
-        metavar='', help="return encodings for a give image path")
+        metavar='', help="returns encodings for a given image path")
     parser.add_argument("-m", "--method", type=str, 
         default="dnn",
-        metavar='', help="face detection method to use: `haar`, `hog`, 'lbp' or `dnn'")
+        metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
     parser.add_argument("-t", "--threshold", type=float, 
         metavar='', help="threshold for probability to filter not-so-confident detections")
     parser.add_argument("-n", "--detect_every_n_frames", type=int, 
