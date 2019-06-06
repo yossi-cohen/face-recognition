@@ -28,11 +28,16 @@ def main():
     parser = create_argparser()
     args = vars(parser.parse_args())
 
+    method = args['method']
+    threshold = args['threshold']
+
     if args['image_path']:
-        detect_faces_in_image(image_path = args['image_path'], 
-                              method=args['method'], 
-                              threshold=args['threshold'])
+        print('detecting faces in images; method: {}; threshold: {}'.format(method, threshold))
+        detect_faces_in_image(image_path=args['image_path'], 
+                              method=method, 
+                              threshold=threshold)
     elif args['video_path']:
+        print('detecting faces in video; method: {}; threshold: {}'.format(method, threshold))
         detect_faces_in_video(video_path=args['video_path'], 
                               method=args['method'], 
                               threshold=args['threshold'], 
