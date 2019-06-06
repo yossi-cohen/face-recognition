@@ -1,0 +1,8 @@
+__pycache__
+.pylintrc
+.vscode
+TODO
+facedb.pkl
+**/face_recognition/videos
+**/face_recognition/known_faces
+**/face_recognition/unknown_faces
