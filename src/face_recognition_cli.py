@@ -3,7 +3,7 @@ import argparse
 
 from lib.detection import FaceDetector
 from lib.landmarks import Dlib_LandmarkDetector
-from lib.recognizer import FaceRecognizer
+from lib.encoding import FaceRecognizer
 from lib.face_db import FaceDb
 
 from examples.face_recognition_image import recognize_faces_in_image

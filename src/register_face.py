@@ -75,13 +75,12 @@ def process_faceenrollment(detector_method, cam_resolution=CAM_RESOLUTION_QVGA):
         keyPressed = cv2.waitKey(1) & 0xFF
         if keyPressed == 27: # <ESC> to exit
             break
-        if keyPressed == 13: # <Enter> to capture the frame
+        if keyPressed == 13: # <Enter> to save the frame as an image
             left = max(left-20, 0)
             top = max(top-20, 0)
             right = min(right+20, frame_width)
             bottom = min(bottom+20, frame_height)
             croped_frame = frame[top:bottom, left:right]
-
             cv2.imwrite(WINDOW_NAME + "_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg", croped_frame)
 
     cap.release()
@@ -93,11 +92,8 @@ def create_argparser():
         default="dnn",
         metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
     parser.add_argument("-t", "--threshold", type=float, 
-        default=0.5,
+        default=0.9,
         metavar='', help="threshold for probability to filter not-so-confident detections")
-    parser.add_argument("-n", "--detect_every_n_frames", type=int, 
-        default=10,
-        metavar='', help="detect faces every N frames to speed up processing")
     return parser
 
 def main():
