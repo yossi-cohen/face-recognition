@@ -3,9 +3,9 @@ import cv2
 from lib.detection import FaceDetector
 import imutils
 from imutils import paths
-from .util import (draw_bounding_box, draw_label)
+from .util import *
 
-def detect_faces_in_image(image_path, method, threshold=0.6):
+def detect_faces_in_image(image_path, method, threshold=None):
     if not os.path.exists(image_path):
         print('path not found: ', image_path)
         return
@@ -23,32 +23,35 @@ def detect_faces_in_image(image_path, method, threshold=0.6):
 
     # process images
     for image_path in image_paths:
+        print()
+        print('matching:', image_path)
+
         file_name = image_path.split(os.path.sep)[-1]
 
+        # read image
         image = cv2.imread(image_path)
         
         # resize image (keep aspect ratio)
-        image = imutils.resize(image, width=400)
-
-        #lilo:faced
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # width = RESOLUTION_VGA[1]
+        width = 480
+        image = imutils.resize(image, width=width)
 
         # detect faces
-        boxes, scores = detector.detect(image_rgb)
-
+        boxes, scores = detector.detect(image)
         # loop through each face found in the image and draw the bounding box
         for i, face_rect in enumerate(boxes):
             draw_bounding_box(image, face_rect)
 
             # draw scores
             if scores and scores[i] > 0:
-                text = "{:.2f}%".format(scores[i] * 100)
-                draw_label(image, face_rect, text=text)
+                score_text = "{:.2f}%".format(scores[i] * 100)
+                print('score:', score_text)
+                draw_label(image, face_rect, text=score_text)
 
         # show the output image
         window_name = file_name
         cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
-        cv2.moveWindow(window_name, 500, 200)
+        cv2.moveWindow(window_name, 500, 50)
         cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
         cv2.imshow(window_name, image)

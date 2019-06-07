@@ -14,10 +14,10 @@ from lib.detection import FaceDetector
 
 WINDOW_NAME = "Face_Registration"
 
-CAM_RESOLUTION_QVGA   = (320, 240)
-CAM_RESOLUTION_VGA    = (640, 480)
+RESOLUTION_QVGA   = (320, 240)
+RESOLUTION_VGA    = (640, 480)
 
-def process_faceenrollment(detector_method, cam_resolution=CAM_RESOLUTION_QVGA):
+def process_faceenrollment(detector_method, cam_resolution=RESOLUTION_QVGA):
 
     # init capture
     cap = cv2.VideoCapture(0)
@@ -99,7 +99,7 @@ def create_argparser():
 def main():
     parser = create_argparser()
     args = vars(parser.parse_args())
-    process_faceenrollment(args['method'], cam_resolution=CAM_RESOLUTION_QVGA)
+    process_faceenrollment(args['method'], cam_resolution=RESOLUTION_QVGA)
 
 if __name__ == '__main__':
     main()

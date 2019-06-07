@@ -22,7 +22,6 @@ def main():
     args = vars(parser.parse_args())
 
     detect_method = args['method']
-    print('using detect method:', detect_method)
 
     if args['scan']:
         if os.path.exists(FACE_DB_PATH):
@@ -43,7 +42,7 @@ def main():
         if args['live']:
             fr = create_face_regonizer(detect_method, optimize=False)
             recognize_faces_in_live_cam(fr, 
-                        threshold=args['threshold'] if args['threshold'] else 0.55,  
+                        threshold=args['threshold'] if args['threshold'] else 0.55, 
                         detect_every_n_frames=args['detect_every_n_frames'])
             return 0
         
@@ -51,7 +50,7 @@ def main():
             fr = create_face_regonizer(detect_method, optimize=False)
             recognize_faces_in_video_file(fr, 
                         video_path=args['video_path'], 
-                        threshold=args['threshold'] if args['threshold'] else 0.55,  
+                        threshold=args['threshold'] if args['threshold'] else 0.55, 
                         detect_every_n_frames=args['detect_every_n_frames'])
             return 0
         
@@ -59,7 +58,7 @@ def main():
             fr = create_face_regonizer(detect_method, optimize=True)
             recognize_faces_in_image(fr, 
                                      image_path=args['image_path'], 
-                                     threshold=args['threshold'] if args['threshold'] else 0.57,  
+                                     threshold=args['threshold'] if args['threshold'] else 0.57, 
                                      disply_image=True)
             return 0
 

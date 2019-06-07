@@ -1,4 +1,5 @@
 import os
+import math
 import pickle
 import numpy as np
 
@@ -80,15 +81,24 @@ class FaceDb():
 				#lilo
 				if not optimize:
 					continue
-				print('*** distance > threshold ({})'.format(threshold))
+				print('*** distance > threshold ({} > {})'.format(distance, threshold))
 				top_two = np.argsort(distances)[:2]
-				idx = top_two[0]
-				name1 = self.get_name(idx)
-				print('\ttop 1: {} - {:.5f}'.format(name1, distances[idx]))
-				idx = top_two[1]
-				name2 = self.get_name(idx)
-				print('\ttop 2: {} - {:.5f}'.format(name2, distances[idx]))
+				idx1 = top_two[0]
+				name1 = self.get_name(idx1)
+				print('\ttop 1: {} - {:.5f}'.format(name1, distances[idx1]))
+				idx2 = top_two[1]
+				name2 = self.get_name(idx2)
+				print('\ttop 2: {} - {:.5f}'.format(name2, distances[idx2]))
+				
+				# discard if names differ
 				if name1 != name2:
+					matches.append((-1, distance))
+					continue
+				
+				# discard if same name but distance differ (2 after point)
+				d1 = distances[idx1]
+				d2 = distances[idx2]
+				if int(d1 * 100) != int(d2 * 100):
 					matches.append((-1, distance))
 					continue
 			

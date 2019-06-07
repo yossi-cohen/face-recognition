@@ -12,15 +12,20 @@ from lib.util import get_model_path
 
 import imutils
 
-import tensorflow as tf               # lazy loading
-import facenet.src.facenet as facenet # lazy loading
-from scipy import misc                # for FaceEncoder_FaceNet
+# FaceEncoder_FaceNet_Keras
+from keras.models import load_model
 
+# FaceEncoder_FaceNet_TF_Sandberg
+import tensorflow as tf
+import facenet.src.facenet as facenet
+from scipy import misc
+
+#lilo (DLIB is the only one that actually works ok, check out the code for the rest!!!)
 class FaceEncoderModels(Enum):
-    DLIB      = 0    # [DL] DLIB ResNet
-    OPENFACE  = 1    # [DL] OpenCV OpenFace
-    FACENET   = 2    # [DL] FaceNet implementation by David Sandberg
-    VGGFACE2  = 3    # [DL] TODO
+    DLIB          = 0    # DLIB ResNet
+    OPENFACE      = 1    # OpenCV OpenFace
+    FACENET_TF    = 2    # FaceNet implementation by David Sandberg
+    FACENET_KERAS = 3    # FaceNet implementation in Keras by Hiroki Taniai
     DEFAULT   = DLIB
 
 class FaceRecognizer():
@@ -32,13 +37,13 @@ class FaceRecognizer():
         
         # face encoding
         if encoding_model == FaceEncoderModels.DLIB:
-            self._face_encoder = FaceEncoder_DLIB()
+            self._model = FaceEncoder_DLIB()
         elif encoding_model == FaceEncoderModels.OPENFACE:
-            self._face_encoder = FaceEncoder_OpenFace()
-        elif encoding_model == FaceEncoderModels.FACENET:
-            self._face_encoder = FaceEncoder_FaceNet()
-        elif encoding_model == FaceEncoderModels.VGGFACE2:
-            self._face_encoder = FaceEncoder_VGGFace2()
+            self._model = FaceEncoder_OpenFace()
+        elif encoding_model == FaceEncoderModels.FACENET_TF:
+            self._model = FaceEncoder_FaceNet_TF_Sandberg()
+        elif encoding_model == FaceEncoderModels.FACENET_KERAS:
+            self._model = FaceEncoder_FaceNet_Keras()
 
         # face detection
         if None != face_detector:
@@ -65,12 +70,7 @@ class FaceRecognizer():
         for label, image_paths in self._enum_known_faces(path):
             for image_path in image_paths:
                 print('adding: {} - {}'.format(label, os.path.basename(image_path)))
-                image = cv2.imread(image_path)
-                
-                #lilo
-                # resize image (keep aspect ratio)
-                image = imutils.resize(image, width=400)
-                
+                image = cv2.imread(image_path)                
                 self._addface(label=label, image=image, flush=False)
         self._face_db.flush()
     
@@ -81,9 +81,9 @@ class FaceRecognizer():
     #############################################
     def _addface(self, label, image, flush=True):
         
-        # #lilo
-        # # resize image (keep aspect ratio)
-        # image = imutils.resize(image, width=400)
+        #lilo
+        # resize image (keep aspect ratio)
+        image = imutils.resize(image, width=400)
 
         encodings, _ = self.face_encodings(image=image)
         
@@ -185,7 +185,7 @@ class FaceRecognizer():
         if None == face_locations:
             face_locations = self.face_detection(image)
         
-        encodings = [np.array(self._face_encoder.encode(
+        encodings = [np.array(self._model.encode(
                         image, face_rect)) for face_rect in face_locations]
         return encodings, face_locations
 
@@ -193,7 +193,7 @@ class FaceEncoder_DLIB():
     def __init__(self, landmark_detector=None, num_jitters=1):
         model_path = os.path.join(get_model_path(
             'encoding', 'dlib_face_recognition_resnet_model_v1.dat'))
-        self._encoder = dlib.face_recognition_model_v1(model_path)
+        self._model = dlib.face_recognition_model_v1(model_path)
 
         self._num_jitters = num_jitters
 
@@ -204,13 +204,12 @@ class FaceEncoder_DLIB():
 
     def encode(self, image, face_rect):
         landmarks = self._landmarks_detector.landmarks(image, face_rect)
-        encoding = self._encoder.compute_face_descriptor(image, landmarks, self._num_jitters)
+        encoding = self._model.compute_face_descriptor(image, landmarks, self._num_jitters)
         return encoding
 
-#lilo
 class FaceEncoder_OpenFace():
     def __init__(self, training=False):
-        self._embedder = cv2.dnn.readNetFromTorch(
+        self._model = cv2.dnn.readNetFromTorch(
             get_model_path('encoding', 'openface_nn4.small2.v1.t7'))
 
     def encode(self, image, face_rect):
@@ -218,7 +217,7 @@ class FaceEncoder_OpenFace():
         (x, y, w, h) = face_rect
         face = image[y:y+h, x:x+w]
 
-        #face = imutils.resize(face, 96)
+        face = cv2.resize(face, (96, 96))
 
         faceBlob = cv2.dnn.blobFromImage(image=face, 
                                         scalefactor=1./255, 
@@ -227,12 +226,42 @@ class FaceEncoder_OpenFace():
                                         swapRB=True, 
                                         crop=False)
 
-        self._embedder.setInput(faceBlob)
-        encodings = self._embedder.forward()
+        self._model.setInput(faceBlob)
+        encodings = self._model.forward()
         return encodings
 
-#lilo
-class FaceEncoder_FaceNet():
+class FaceEncoder_FaceNet_Keras():
+    _face_crop_size = 160
+    _face_crop_margin = 0
+
+    def __init__(self):
+        path = get_model_path('encoding', 'facenet_keras.h5')
+        self._model = load_model(path)
+
+    def encode(self, image, face_rect):
+
+        # extract the face
+        (x, y, w, h) = face_rect
+        face = image[y:y+h, x:x+w]
+
+        # resize pixels to the model size
+        face = cv2.resize(face, (160, 160))
+
+        # scale pixel values
+        face = face.astype('float32')
+
+        # standardize pixel values across channels (global)
+        mean, std = face.mean(), face.std()
+        face = (face - mean) / std
+
+        # transform face into one sample
+        samples = np.expand_dims(face, axis=0)
+
+        # make prediction to get embedding
+        yhat = self._model.predict(samples)
+        return yhat[0]
+
+class FaceEncoder_FaceNet_TF_Sandberg():
     _face_crop_size = 160
     _face_crop_margin = 0
 
@@ -263,12 +292,3 @@ class FaceEncoder_FaceNet():
         prewhiten_face = facenet.prewhiten(face)
         feed_dict = {images_placeholder: [prewhiten_face], phase_train_placeholder: False}
         return self._sess.run(embeddings, feed_dict=feed_dict)[0]
-
-#lilo
-class FaceEncoder_VGGFace2():
-    def __init__(self):
-        pass
-
-    def encode(self, image, face_rect):
-        #from keras_vggface.vggface import VGGFace # lazy loading
-        pass

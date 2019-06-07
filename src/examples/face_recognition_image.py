@@ -23,6 +23,7 @@ def recognize_faces_in_image(fr, image_path, threshold=None,
         print()
         print('matching:', image_path)
 
+        # read image
         image = cv2.imread(image_path)
 
         # resize image (keep aspect ratio)

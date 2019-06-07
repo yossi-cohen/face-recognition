@@ -9,7 +9,7 @@ def create_argparser():
         default="dnn",
         metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
     parser.add_argument("-t", "--threshold", type=float, 
-        default=0.5,
+        default=0.4,
         metavar='', help="threshold for probability to filter not-so-confident detections")
     parser.add_argument("-n", "--detect_every_n_frames", type=int, 
         default=10,
@@ -29,15 +29,12 @@ def main():
     args = vars(parser.parse_args())
 
     method = args['method']
-    threshold = args['threshold']
 
     if args['image_path']:
-        print('detecting faces in images; method: {}; threshold: {}'.format(method, threshold))
         detect_faces_in_image(image_path=args['image_path'], 
                               method=method, 
-                              threshold=threshold)
+                              threshold=args['threshold'])
     elif args['video_path']:
-        print('detecting faces in video; method: {}; threshold: {}'.format(method, threshold))
         detect_faces_in_video(video_path=args['video_path'], 
                               method=args['method'], 
                               threshold=args['threshold'], 
