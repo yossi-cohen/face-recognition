@@ -62,11 +62,11 @@ def process_faceenrollment(detector_method, cam_resolution=CAM_RESOLUTION_QVGA):
 
         # detect faces in the frame and 
         # draw bounding box around the face
-        (left, top, right, bottom) = (0, 0, frame_width, frame_height)
+        (crop_left, crop_top, crop_right, crop_bottom) = (0, 0, frame_width, frame_height)
         faces, confidence = face_detector.detect(frame)
         for (index, face_rect) in enumerate(faces):
-            (left, top, right, bottom) = face_rect
-            cv2.rectangle(fg, (left, top), (right, bottom), (255, 255, 255), 2)
+            (x, y, w, h) = face_rect
+            cv2.rectangle(fg, (x, y), (x+w, y+h), (255, 255, 255), 2)
             break # process a single face
                 
         cv2.imshow(WINDOW_NAME, fg)
@@ -76,11 +76,11 @@ def process_faceenrollment(detector_method, cam_resolution=CAM_RESOLUTION_QVGA):
         if keyPressed == 27: # <ESC> to exit
             break
         if keyPressed == 13: # <Enter> to save the frame as an image
-            left = max(left-20, 0)
-            top = max(top-20, 0)
-            right = min(right+20, frame_width)
-            bottom = min(bottom+20, frame_height)
-            croped_frame = frame[top:bottom, left:right]
+            crop_left = max(crop_left-20, 0)
+            crop_top = max(crop_top-20, 0)
+            crop_right = min(crop_right+20, frame_width)
+            crop_bottom = min(crop_bottom+20, frame_height)
+            croped_frame = frame[crop_top:crop_bottom, crop_left:crop_right]
             cv2.imwrite(WINDOW_NAME + "_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg", croped_frame)
 
     cap.release()

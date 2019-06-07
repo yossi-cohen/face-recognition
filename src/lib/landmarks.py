@@ -9,8 +9,8 @@ class LandmarkDetector():
 def to_dlib_rect(face_rect):
     if isinstance(face_rect, dlib.rectangle):
         return face_rect 
-    left, top, right, bottom = face_rect
-    return dlib.rectangle(left=left, top=top, right=right, bottom=bottom)
+    x, y, w, h = face_rect
+    return dlib.rectangle(left=x, top=y, right=x+w, bottom=y+h)
 
 class Dlib_LandmarkDetector(LandmarkDetector):
     def __init__(self):

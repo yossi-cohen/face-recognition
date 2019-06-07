@@ -61,7 +61,7 @@ class FaceDetector_SSDRESNET():
         # build result 
         boxes = []
         scores = []
-        (h, w) = image.shape[:2]
+        (ih, iw) = image.shape[:2]
         for i in range(detections.shape[2]):
             # filter out weak detections 
             confidence = detections[0, 0, i, 2]
@@ -69,8 +69,10 @@ class FaceDetector_SSDRESNET():
                 continue
             
             # box is (left, top, right, bottom)
-            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-            boxes.append(box.astype('int'))
+            box = (detections[0, 0, i, 3:7] * np.array([iw, ih, iw, ih])).astype('int')
+            # convert to (x, y, w, h)
+            (x, y, w, h) = (box[0], box[1], box[2]-box[0], box[3]-box[1])
+            boxes.append((x, y, w, h))
             scores.append(confidence)
         
         return boxes, scores
@@ -94,12 +96,9 @@ class FaceDetector_Haar():
             minSize=(self._minfacesize, self._minfacesize)    # the minimum rectangle size to 
                                                               # be considered a face.
         )
-
-        boxes = []
-        for (x, y, w, h) in dets:
-            boxes.append((x, y, x+w, y+h))
         
-        return boxes, None #TODO: how to get scores from detectMultiScale?
+        # dets is an array of (x, y, w, h)
+        return dets, None #TODO: how to get scores from detectMultiScale?
 
 class FaceDetector_LBP():
     def __init__(self, path=None, minfacesize=20):
@@ -121,11 +120,8 @@ class FaceDetector_LBP():
                                                               # be considered a face.
         )
 
-        boxes = []
-        for (x, y, w, h) in dets:
-            boxes.append((x, y, x+w, y+h))
-
-        return boxes, None #TODO: how to get scores from detectMultiScale?
+        # dets is an array of (x, y, w, h)
+        return dets, None #TODO: how to get scores from detectMultiScale?
 
 class FaceDetector_DLIB_HOG():
     def __init__(self):
@@ -137,7 +133,7 @@ class FaceDetector_DLIB_HOG():
         for i, face in enumerate(faces):
             # convert dlib's rectangle to a bounding box
             (x, y, w, h) = face_utils.rect_to_bb(face)
-            boxes.append((x, y, x+w, y+h))
+            boxes.append((x, y, w, h))
         return boxes, None # TODO: how to get scores from hog detector?
 
 class FaceDetector_DLIB_CNN(): # VERY SLOW!!!
@@ -152,7 +148,7 @@ class FaceDetector_DLIB_CNN(): # VERY SLOW!!!
         for i, face in enumerate(faces):
             # convert dlib's rectangle to a bounding box
             (x, y, w, h) = face_utils.rect_to_bb(face)
-            boxes.append((x, y, x+w, y+h))
+            boxes.append((x, y, w, h))
         return boxes, None # TODO: how to get scores from hog detector?
 
 class FaceDetector_MTCNN():
@@ -170,7 +166,7 @@ class FaceDetector_MTCNN():
 
             box = face['box']
             x, y, w, h = box[0], box[1], box[2], box[3]
-            boxes.append((x, y, x+w, y+h))
+            boxes.append((x, y, w, h))
             scores.append(score)
         return boxes, scores
 
@@ -197,7 +193,7 @@ class FaceDetector_FACENET:
             (x, y, w, h) = (max(face[0], 0), max(face[1], 0), 
                 min(face[2],image.shape[1])-max(face[0], 0), 
                 min(face[3],image.shape[0])-max(face[1], 0) )
-            boxes.append((x, y, x+w, y+h))
+            boxes.append((x, y, w, h))
         return boxes, None
 
 
@@ -223,4 +219,4 @@ class FaceDetector_FACED:
         h = bbox[3]
         x = int(x_center - w/2)
         y = int(y_center - h/2)
-        return (x, y, x+w, y+h)
+        return (x, y, w, h)

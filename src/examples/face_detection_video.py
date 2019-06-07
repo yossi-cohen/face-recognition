@@ -37,13 +37,14 @@ def detect_faces_in_video(video_path,
             boxes, scores = face_detector.detect(frame)
 
         # loop through each face found in the image and draw the bounding box
-        for i, (left, top, right, bottom) in enumerate(boxes):
-            cv2.rectangle(frame, (left, top), (right, bottom), (255, 0, 0), 1)
+        for i, face_rect in enumerate(boxes):
+            (x, y, w, h) = face_rect
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 1)
             # draw scores
             if scores and scores[i] > 0:
-                y = top - 10 if top - 10 > 10 else top + 10
+                y_scores = y - 10 if y - 10 > 10 else y + 10
                 text = "{:.2f}%".format(scores[i] * 100)
-                cv2.putText(frame, text, (left, y), 
+                cv2.putText(frame, text, (x, y_scores), 
                             cv2.FONT_HERSHEY_SIMPLEX, 
                             0.40, (0, 255, 0), 1)
 

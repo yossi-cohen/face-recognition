@@ -37,25 +37,25 @@ def recognize_faces_in_live_cam(fr,
             # display the results
             for m in matches:
                 box, id, distance = m
-                left, top, right, bottom = box
+                x, y, w, h = box
 
                 # lilo:TODO
                 # # scale back up face locations since the frame we detected in 
                 # # was scaled to 1/4 size
-                # top *= 4
-                # right *= 4
-                # bottom *= 4
-                # left *= 4
+                # y *= 4
+                # w *= 4
+                # h *= 4
+                # x *= 4
 
                 if id < 0:
                     # display face location
-                    cv2.rectangle(frame, (left, top), (right, bottom), (255, 0, 0), 1)
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 1)
                 else:
                     # display name (distance)
-                    x = left + int((right-left)/3)
-                    y = top - 10 if top - 10 > 10 else top + 10
+                    x_display = x + int(w/3)
+                    y_display = y - 10 if y - 10 > 10 else y + 10
                     text = '{} ({:.3f})'.format(fr.get_name(id), distance)
-                    cv2.putText(frame, text, (x, y), 
+                    cv2.putText(frame, text, (x_display, y_display), 
                                 cv2.FONT_HERSHEY_SIMPLEX, 
                                 0.40, (0, 255, 0), 1)
 

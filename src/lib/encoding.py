@@ -207,30 +207,18 @@ class FaceEncoder_DLIB():
         encoding = self._encoder.compute_face_descriptor(image, landmarks, self._num_jitters)
         return encoding
 
+#lilo
 class FaceEncoder_OpenFace():
     def __init__(self, training=False):
         self._embedder = cv2.dnn.readNetFromTorch(
             get_model_path('encoding', 'openface_nn4.small2.v1.t7'))
 
     def encode(self, image, face_rect):
-        #lilo
-        # (x, y, w, h) = face_rect
-        # face = image[y:y+h, x:x+w]
-        # print('lilo -------- face_rect:', face_rect)
 
-        # print('lilo OpenFace ============== image shape:', image.shape)
-        # print('lilo OpenFace ============== face_rect:', face_rect)
-        (left, top, right, bottom) = face_rect
-        # print('lilo OpenFace ============== left,top,right,bottom:', left, top, right, bottom)
-        face = image[top:bottom, left:right]
-        # print('lilo OpenFace ============== face.shape:', face.shape)
+        (x, y, w, h) = face_rect
+        face = image[y:y+h, x:x+w]
 
         #face = imutils.resize(face, 96)
-
-        # cv2.imshow('foo', face)
-        # print('lilo $$$$$$$$$$$$$$$')
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
 
         faceBlob = cv2.dnn.blobFromImage(image=face, 
                                         scalefactor=1./255, 
@@ -256,8 +244,7 @@ class FaceEncoder_FaceNet():
             facenet.load_model(model_path)
 
     def encode(self, image, face_rect):
-        (left, top, right, bottom) = face_rect
-        (x, y, w, h) = (left, top, right-left, bottom-top)
+        (x, y, w, h) = face_rect
         
         if self._face_crop_margin:
             (x, y, w, h) = (

@@ -56,7 +56,6 @@ def recognize_faces_in_video_file(fr, video_path,
         # display the results
         for m in matches:
             face_rect, id, distance = m
-            left, top, right, bottom = face_rect
 
             # display face location
             draw_bounding_box(frame, face_rect)
