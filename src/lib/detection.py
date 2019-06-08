@@ -11,7 +11,6 @@ import facenet.src.align.detect_face as facenet
 
 class FaceDetector():
     def __init__(self, method='dnn', threshold=0.3, optimize=False, minfacesize=20):
-
         # print debug
         print('FaceDetector( method={}, threshold={}, minfacesize={}, optimize={} )'.format(
             method, threshold, minfacesize, optimize))
