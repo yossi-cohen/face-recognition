@@ -29,8 +29,6 @@ class FaceDetector():
             self._model = FaceDetector_MTCNN(threshold=threshold)
         elif 'facenet' == method:
             self._model = FaceDetector_FACENET(minfacesize=minfacesize)
-        elif 'faced' == method:
-            self._model = FaceDetector_FACED(threshold=threshold)
         else:
             raise RuntimeError('unsupported:', method)
 
@@ -206,27 +204,3 @@ class FaceDetector_FACENET:
                 min(face[3],image.shape[0])-max(face[1], 0) )
             boxes.append((x, y, w, h))
         return boxes, None
-
-class FaceDetector_FACED:
-    def __init__(self, threshold=0.5):
-        from faced import FaceDetector
-        # from faced.utils import annotate_image
-        self._model = FaceDetector()
-        self._threshold = threshold
-
-    def detect(self, image):
-        # receives RGB numpy image (HxWxC) and
-        # returns (x_center, y_center, width, height, prob) tuples. 
-        bboxes = self._model.predict(image, self._threshold)
-        boxes = [self._convert(bbox) for bbox in bboxes]
-        scores = [bbox[4] for bbox in bboxes]
-        return boxes, scores
-
-    def _convert(self, bbox):
-        x_center = bbox[0]
-        y_center = bbox[1]
-        w = bbox[2]
-        h = bbox[3]
-        x = int(x_center - w/2)
-        y = int(y_center - h/2)
-        return (x, y, w, h)
