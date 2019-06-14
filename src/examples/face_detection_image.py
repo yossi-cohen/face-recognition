@@ -1,5 +1,6 @@
 import os
 import cv2
+import random
 from lib.detection import FaceDetector
 import imutils
 from imutils import paths
@@ -17,6 +18,9 @@ def detect_faces_in_image(image_path, method, threshold=None):
             image_paths.append(path)
     else:
         image_paths.append(image_path)
+    
+    # shuffle images
+    random.shuffle(image_paths)
 
     # create the face detector
     detector = FaceDetector(method, threshold=threshold, optimize=True)

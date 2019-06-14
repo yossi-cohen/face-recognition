@@ -1,5 +1,6 @@
 import os
 import cv2
+import random
 import imutils
 from imutils import paths
 from .util import *
@@ -17,6 +18,9 @@ def recognize_faces_in_image(fr, image_path, threshold=None,
             image_paths.append(path)
     else:
         image_paths.append(image_path)
+    
+    # shuffle images
+    random.shuffle(image_paths)
 
     # process images
     for image_path in image_paths:
@@ -67,6 +71,7 @@ def recognize_faces_in_image(fr, image_path, threshold=None,
                 quit = True
 
             # cleanup
+            print('lilo ------------------------ cv2.destroyAllWindows')
             cv2.destroyAllWindows()
             if quit:
                 break # user asked to quit
