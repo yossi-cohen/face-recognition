@@ -5,8 +5,11 @@ import imutils
 from imutils import paths
 from .util import *
 
-def recognize_faces_in_image(fr, image_path, threshold=None,  
-                             disply_image=True, output_res=RESOLUTION_VGA):
+def recognize_faces_in_image(fr, image_path, 
+                             threshold=None, 
+                             disply_image=True, 
+                             output_res=RESOLUTION_VGA):
+
     if not os.path.exists(image_path):
         print('path not found: ', image_path)
         return
@@ -23,6 +26,7 @@ def recognize_faces_in_image(fr, image_path, threshold=None,
     random.shuffle(image_paths)
 
     # process images
+    do_create_window =  True
     for image_path in image_paths:
         print()
         print('matching:', image_path)
@@ -55,12 +59,14 @@ def recognize_faces_in_image(fr, image_path, threshold=None,
                 if disply_image:
                     draw_label(image, face_rect, text=fr.get_name(id))
 
+        # display the image
         if disply_image:
-            # display the output image
-            window_name = image_path.split(os.path.sep)[-1]
-            cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
-            cv2.moveWindow(window_name, 500, 50)
-            cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            if do_create_window:
+                do_create_window = False
+                window_name = image_path.split(os.path.sep)[-1]
+                cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+                cv2.moveWindow(window_name, 500, 50)
+                cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
             cv2.imshow(window_name, image)
 
@@ -70,8 +76,8 @@ def recognize_faces_in_image(fr, image_path, threshold=None,
             if key == ord("q"):
                 quit = True
 
-            # cleanup
-            print('lilo ------------------------ cv2.destroyAllWindows')
-            cv2.destroyAllWindows()
             if quit:
                 break # user asked to quit
+    
+    # cleanup
+    cv2.destroyAllWindows()
