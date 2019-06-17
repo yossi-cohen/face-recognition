@@ -12,42 +12,40 @@ from examples.face_recognition_live_cam import recognize_faces_in_live_cam
 
 FACE_DB_PATH = 'examples/face_recognition/facedb.pkl'
 
-def create_face_regonizer(detect_method, db_path=FACE_DB_PATH, optimize=False):
-    fr = FaceRecognizer(face_db=FaceDb(db_path=db_path), 
-                        face_detector=FaceDetector(method=detect_method, optimize=optimize))
-    return fr
-
 def main():
     parser = create_argparser()
     args = vars(parser.parse_args())
-
-    detect_method = args['method']
 
     if args['scan']:
         if os.path.exists(FACE_DB_PATH):
             print('deleting', FACE_DB_PATH)
             os.remove(FACE_DB_PATH)
-        fr = create_face_regonizer(detect_method, optimize=True)
+        #lilo: face_db = FaceDb(FACE_DB_PATH)
+        fd = FaceDetector(method=args['method'], optimize=True)
+        fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
         fr.add_faces(path=args['known_faces'])
         return 0
 
     if args['add']:
         image_path = args['image_path']
         if image_path:
-            fr = create_face_regonizer(detect_method, optimize=True)
+            fd = FaceDetector(method=args['method'], optimize=True)
+            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
             fr.add_face(path=image_path)
             return 0
 
     elif args['recognize']:
         if args['live']:
-            fr = create_face_regonizer(detect_method, optimize=False)
+            fd = FaceDetector(method=args['method'], optimize=False)
+            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
             recognize_faces_in_live_cam(fr, 
                         threshold=args['threshold'] if args['threshold'] else 0.55, 
                         detect_every_n_frames=args['detect_every_n_frames'])
             return 0
         
         elif args['video_path']:
-            fr = create_face_regonizer(detect_method, optimize=False)
+            fd = FaceDetector(method=args['method'], optimize=False)
+            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
             recognize_faces_in_video_file(fr, 
                         video_path=args['video_path'], 
                         threshold=args['threshold'] if args['threshold'] else 0.55, 
@@ -55,7 +53,8 @@ def main():
             return 0
         
         elif args['image_path']:
-            fr = create_face_regonizer(detect_method, optimize=True)
+            fd = FaceDetector(method=args['method'], optimize=True)
+            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
             recognize_faces_in_image(fr, 
                                      image_path=args['image_path'], 
                                      threshold=args['threshold'] if args['threshold'] else 0.57, 
