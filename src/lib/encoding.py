@@ -23,7 +23,7 @@ class FaceEncoderModels(Enum):
 class FaceEncoder():
     def __init__(self, model=FaceEncoderModels.DEFAULT):
         if model == FaceEncoderModels.DLIB:
-            self._model = FaceEncoder_DLIB()
+            self._model = FaceEncoder_DLIB_RESNET()
         elif model == FaceEncoderModels.OPENFACE:
             self._model = FaceEncoder_OpenFace()
         elif model == FaceEncoderModels.FACENET_TF:
@@ -34,22 +34,16 @@ class FaceEncoder():
     def encode(self, image, face_rect):
         return self._model.encode(image, face_rect)
 
-class FaceEncoder_DLIB():
-    def __init__(self, landmark_detector=None, num_jitters=1):
+class FaceEncoder_DLIB_RESNET():
+    def __init__(self):
         model_path = os.path.join(get_model_path(
             'encoding', 'dlib_face_recognition_resnet_model_v1.dat'))
         self._model = dlib.face_recognition_model_v1(model_path)
-
-        self._num_jitters = num_jitters
-
-        if None != landmark_detector:
-            self._landmarks_detector = landmark_detector
-        else:
-            self._landmarks_detector = Dlib_LandmarkDetector()
+        self._landmarks_detector = Dlib_LandmarkDetector()
 
     def encode(self, image, face_rect):
         landmarks = self._landmarks_detector.landmarks(image, face_rect)
-        encoding = self._model.compute_face_descriptor(image, landmarks, self._num_jitters)
+        encoding = self._model.compute_face_descriptor(image, landmarks)
         return encoding
 
 class FaceEncoder_OpenFace():

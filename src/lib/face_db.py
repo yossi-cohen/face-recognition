@@ -78,9 +78,9 @@ class FaceDb():
 			distance = distances[face_index]
 			
 			if threshold and distance >= threshold:
-				#lilo
 				if not optimize:
 					continue
+
 				print('*** distance > threshold ({} > {})'.format(distance, threshold))
 				top_two = np.argsort(distances)[:2]
 				idx1 = top_two[0]
@@ -90,17 +90,19 @@ class FaceDb():
 				name2 = self.get_name(idx2)
 				print('\ttop 2: {} - {:.5f}'.format(name2, distances[idx2]))
 				
-				# discard if names differ
-				if name1 != name2:
-					matches.append((-1, distance))
-					continue
-				
-				# discard if same name but distance differ (2 after point)
 				d1 = distances[idx1]
 				d2 = distances[idx2]
-				if int(d1 * 100) != int(d2 * 100):
-					matches.append((-1, distance))
-					continue
+
+				# discard if names differ
+				if name1 != name2:
+					if abs(d1 - d2) < 0.08:
+						matches.append((-1, distance))
+						continue
+				else: # name1 == name2
+					# discard if same name but distance differ (2 after point)
+					if int(d1 * 100) != int(d2 * 100):
+						matches.append((-1, distance))
+						continue
 			
 			matches.append((face_index, distance))
 		return matches

@@ -12,7 +12,6 @@ class FaceRecognizer():
         self._encoder = encoder
         # face detection
         self._detector = detector
-
         # face db
         self._face_db = face_db
 
@@ -23,6 +22,9 @@ class FaceRecognizer():
     # multiple images per person: put images under folder where folder_name == person_name
     ########################################################################################
     def train_known_faces(self, path):
+        known_names = []
+        known_embeddings = []
+
         for label, image_path in enum_known_faces(path):
             print('adding: {} - {}'.format(label, os.path.basename(image_path)))
 
@@ -46,6 +48,9 @@ class FaceRecognizer():
 
             # add face encodings to db
             self._face_db.add_encoding(label, encodings[0], flush=False)
+            
+            known_names.append(label)
+            known_embeddings.append(encodings[0])
         
         # flush db
         self._face_db.flush()
@@ -68,11 +73,10 @@ class FaceRecognizer():
         """ return a list of (box, id, distance) for identified faces in an image """
 
         # we may get more than one encodings if the image contains more that one face.
-        encodings, face_locations = self.encode_faces(image=image)
+        encodings, face_locations = self.encode_faces(image)
 
         matches = self._face_db.match(unknown_face_encodings=encodings, 
-                                      threshold=threshold, 
-                                      optimize=optimize)
+                                      threshold=threshold, optimize=optimize)
 
         # return matches including bounding box (box, id, distance)
         res = [(face_locations[i], id, distance) for i, (id, distance) in enumerate(matches)]
@@ -87,21 +91,16 @@ class FaceRecognizer():
         return faces, scores
 
     #############################################
-    # returns landmarks for each face
-    # in the image.
-    #############################################
-    def detect_landmarks(self, image, face_locations):
-        if None == self._landmarks_detector:
-            self._landmarks_detector = Dlib_LandmarkDetector()
-        if None == face_locations:
-            face_locations, _ = self.detect_faces(image)
-        return self._landmarks_detector.landmarks(image, face_locations)
-
-    #############################################
     # returns 128-dimensional face encodings 
     # for each face in the image.
     #############################################
+
     def encode_faces(self, image):
+        def normalize(enc):
+            return enc
+
         face_locations, _ = self.detect_faces(image)
-        encodings = [np.array(self._encoder.encode(image, face_rect)) for face_rect in face_locations]
+        encodings = [normalize(np.array(self._encoder.encode(image, face_rect))) 
+                        for face_rect in face_locations]
         return encodings, face_locations
+
