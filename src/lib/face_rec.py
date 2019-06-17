@@ -35,7 +35,7 @@ class FaceRecognizer():
             # get encodings
             encodings, _ = self.encode_faces(image)
 
-            # check exactly one face
+            # check we have exactly one face
             num_encodings = len(encodings)
             if num_encodings <= 0:
                 print('no faces found in image ({})! skipping.'.format(label))
@@ -63,6 +63,7 @@ class FaceRecognizer():
     # returns a list of (box, id, distance) 
     # for each identified face
     #############################################
+    
     def identify(self, image, threshold=None, optimize=False):
 
         """ return a list of (box, id, distance) for identified faces in an image """
@@ -70,12 +71,12 @@ class FaceRecognizer():
         # we may get more than one encodings if the image contains more that one face.
         encodings, face_locations = self.encode_faces(image)
 
-        matches = self._face_db.match(unknown_face_encodings=encodings, 
-                                      threshold=threshold, optimize=optimize)
+        # match against known face encodings
+        matches = [self._face_db.match(enc, threshold=threshold, optimize=optimize) 
+                        for enc in encodings]
 
         # return matches including bounding box (box, id, distance)
-        res = [(face_locations[i], id, distance) for i, (id, distance) in enumerate(matches)]
-        return res
+        return [(face_locations[i], id, distance) for i, (id, distance) in enumerate(matches)]
 
     #############################################
     # returns bounding-rect for faces in the 

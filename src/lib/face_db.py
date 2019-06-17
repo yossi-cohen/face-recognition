@@ -55,61 +55,47 @@ class FaceDb():
 		with open(self.db_path, 'wb') as f:
 			pickle.dump(self.db, f, pickle.HIGHEST_PROTOCOL)
 
-	def face_distance(self, known_face_encodings, unknown_encoding):
-		"""
-		Given a face encoding, compare it to known face encodings to get an euclidean distance.
-		:param known_face_encodings: list of known face encodings
-		:param unknown_encoding: a face encoding to match against known_face_encodings
-		:return: An array with a distance for each 'known_face_encodings'
-		"""
-		return np.linalg.norm(known_face_encodings - unknown_encoding, axis=1)
-
-	def match(self, unknown_face_encodings, threshold=None, optimize=False):
-		"""
-		Match each of the unknown-face-encodings to the known-face-encodings in the db.
-		:param: unknown_face_encodings - a list of unknown face encodings to match.
-		:return: a list of tuples [(id, face_distance)] of best matches for each of the 
-		         unknown encodings.  use get_name(id) to get the label for the id.
-		"""
-		matches = []
-		known_face_encodings = self.db['encodings']
-		for unknown_enc in unknown_face_encodings:
-
-			distances = self.face_distance(known_face_encodings, unknown_enc)
-			
-			face_index = np.argmin(distances)
-			distance = distances[face_index]
-			
-			if threshold and distance >= threshold:
-				if not optimize:
-					continue
-
-				print('*** distance > threshold ({} > {})'.format(distance, threshold))
-				top_two = np.argsort(distances)[:2]
-				idx1 = top_two[0]
-				name1 = self.get_name(idx1)
-				print('\ttop 1: {} - {:.5f}'.format(name1, distances[idx1]))
-				idx2 = top_two[1]
-				name2 = self.get_name(idx2)
-				print('\ttop 2: {} - {:.5f}'.format(name2, distances[idx2]))
-				
-				d1 = distances[idx1]
-				d2 = distances[idx2]
-
-				# discard if names differ
-				if name1 != name2:
-					if abs(d1 - d2) < 0.06:
-						matches.append((-1, distance))
-						continue
-				else: # name1 == name2
-					# discard if same name but distance differ (2 after point)
-					if int(d1 * 100) != int(d2 * 100):
-						matches.append((-1, distance))
-						continue
-			
-			matches.append((face_index, distance))
-		return matches
-
 	def get_name(self, id):
 		"""return person name by id"""
 		return self.db['name_by_index'][id]
+
+	def match(self, enc, threshold=None, optimize=False):
+		"""
+		Match enc to the known-face-encodings in the db.
+		:param: enc - unknown face encoding to match.
+		:return: a tuple (id, face_distance) of best match for the unknown encodings. 
+		         use get_name(id) to get the label for the id.
+		"""
+		known_face_encodings = self.db['encodings']
+
+		# compare enc to known-face-encodings to get all euclidean distances.
+		distances = np.linalg.norm(known_face_encodings - enc, axis=1)
+
+		# get the minimum distance		
+		face_index = np.argmin(distances)
+		min_distance = distances[face_index]
+
+		# optimization if min_distance >= threshold
+		if optimize and threshold and min_distance >= threshold:
+			print('*** distance > threshold ({} > {})'.format(min_distance, threshold))
+			top_two = np.argsort(distances)[:2]
+			idx1 = top_two[0]
+			name1 = self.get_name(idx1)
+			print('\ttop 1: {} - {:.5f}'.format(name1, distances[idx1]))
+			idx2 = top_two[1]
+			name2 = self.get_name(idx2)
+			print('\ttop 2: {} - {:.5f}'.format(name2, distances[idx2]))
+			
+			d1 = distances[idx1]
+			d2 = distances[idx2]
+
+			# discard if names differ
+			if name1 != name2:
+				if abs(d1 - d2) < 0.06:
+					return -1, min_distance
+			else: # name1 == name2
+				# discard if same name but distance differ (2 after point)
+				if int(d1 * 100) != int(d2 * 100):
+					return -1, min_distance
+			
+		return face_index, min_distance
