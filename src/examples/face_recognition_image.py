@@ -47,18 +47,23 @@ def recognize_faces_in_image(fr, image_path,
             print('\tno matches!')
 
         for m in matches:
-            face_rect, id, distance = m
+            face_rect, id, distance, gender = m
 
             if disply_image:
                 draw_bounding_box(image, face_rect)
 
             # print to console
+            if not gender:
+                gender = '?'
+
             if id < 0:
-                print('\tUNRECOGNIZED! (distance: {:.5f})'.format(distance))
-            else:
-                print('\t{} (distance: {:.5f})'.format(fr.get_name(id), distance))
+                print('\tUNRECOGNIZED! (distance: {:.5f}) ({})'.format(distance, gender))
                 if disply_image:
-                    draw_label(image, face_rect, text=fr.get_name(id))
+                    draw_label(image, face_rect, text='({})'.format(gender))
+            else:
+                print('\t{} (distance: {:.5f}) ({})'.format(fr.get_name(id), distance, gender))
+                if disply_image:
+                    draw_label(image, face_rect, text='{} ({})'.format(fr.get_name(id), gender))
 
         # display the image
         if disply_image:

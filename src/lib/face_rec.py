@@ -4,7 +4,7 @@ import dlib
 import numpy as np
 import imutils
 from lib.util import enum_known_faces
-from lib.landmarks import Dlib_LandmarkDetector
+from lib.gender import GenderEstimator
 
 class FaceRecognizer():
     def __init__(self, detector, encoder, face_db):
@@ -14,6 +14,9 @@ class FaceRecognizer():
         self._detector = detector
         # face db
         self._face_db = face_db
+
+        # gender detection
+        self._gender_detector = GenderEstimator()
 
     ########################################################################################
     # train on images to identify known faces.
@@ -63,7 +66,7 @@ class FaceRecognizer():
     # returns a list of (box, id, distance) 
     # for each identified face
     #############################################
-    
+
     def identify(self, image, threshold=None, optimize=False):
 
         """ return a list of (box, id, distance) for identified faces in an image """
@@ -75,8 +78,12 @@ class FaceRecognizer():
         matches = [self._face_db.match(enc, threshold=threshold, optimize=optimize) 
                         for enc in encodings]
 
+        # gender detection
+        genders = [self._gender_detector.estimate(image[y:y+h, x:x+w]) 
+                        for x,y,w,h in face_locations]
+        
         # return matches including bounding box (box, id, distance)
-        return [(face_locations[i], id, distance) for i, (id, distance) in enumerate(matches)]
+        return [(face_locations[i], id, distance, genders[i]) for i, (id, distance) in enumerate(matches)]
 
     #############################################
     # returns bounding-rect for faces in the 

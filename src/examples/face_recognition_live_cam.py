@@ -33,7 +33,7 @@ def recognize_faces_in_live_cam(fr,
             
             # display the results
             for m in matches:
-                box, id, distance = m
+                box, id, distance, gender = m
                 x, y, w, h = box
 
                 # lilo:TODO

@@ -53,7 +53,7 @@ def recognize_faces_in_video_file(fr, video_path,
             
         # display the results
         for m in matches:
-            face_rect, id, distance = m
+            face_rect, id, distance, gender = m
 
             # display face location
             draw_bounding_box(frame, face_rect)
