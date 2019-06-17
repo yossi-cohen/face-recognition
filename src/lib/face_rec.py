@@ -26,11 +26,10 @@ class FaceRecognizer():
     # (images assumed to contain a single face)
     #############################################
     def add_faces(self, path):
-        for label, image_paths in self._enum_known_faces(path):
-            for image_path in image_paths:
-                print('adding: {} - {}'.format(label, os.path.basename(image_path)))
-                image = cv2.imread(image_path)                
-                self._addface(label=label, image=image, flush=False)
+        for label, image_path in self._enum_known_faces(path):
+            print('adding: {} - {}'.format(label, os.path.basename(image_path)))
+            image = cv2.imread(image_path)                
+            self._addface(label=label, image=image, flush=False)
         self._face_db.flush()
     
     #############################################
@@ -57,27 +56,25 @@ class FaceRecognizer():
 
         self._face_db.add_encoding(label, encodings[0], flush=flush)
         
-    #############################################
-    # (private)
-    # get paths and labels for known faces
-    #############################################
+    ########################################################################################
+    # get paths and labels for known faces.
+    # single image per person: file_name == person_name
+    # multiple images per person: put images under folder where folder_name == person_name
+    ########################################################################################
     def _enum_known_faces(self, path):
         print('enumerating faces in:', path)
         for f in sorted(os.listdir(path)):
-            image_paths = [] # single/multiple images per person
             full_path = os.path.join(path, f)
             if os.path.isdir(full_path):
                 # multiple images per label
-                label = f # label is directory name
+                label = f # label is folder name
                 for f2 in os.listdir(full_path):
                     image_path = os.path.join(full_path, f2)
-                    image_paths.append(image_path)
-                yield label, image_paths
+                    yield label, image_path
             else:
                 # single image per label
                 label = os.path.splitext(f)[0] # label is file name without extention
-                image_paths.append(full_path)
-                yield label, image_paths
+                yield label, full_path
 
     #############################################
     # get the name (label) of an identified 
