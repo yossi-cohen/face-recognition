@@ -22,8 +22,6 @@ class FaceRecognizer():
     # multiple images per person: put images under folder where folder_name == person_name
     ########################################################################################
     def train_known_faces(self, path):
-        known_names = []
-        known_embeddings = []
 
         for label, image_path in enum_known_faces(path):
             print('adding: {} - {}'.format(label, os.path.basename(image_path)))
@@ -46,12 +44,9 @@ class FaceRecognizer():
                 print('image should contain a single face! ({} - {} encodings) skipping.'.format(label, num_encodings))
                 continue
 
-            # add face encodings to db
+            # add face encodings to db    
             self._face_db.add_encoding(label, encodings[0], flush=False)
-            
-            known_names.append(label)
-            known_embeddings.append(encodings[0])
-        
+
         # flush db
         self._face_db.flush()
     
@@ -96,11 +91,7 @@ class FaceRecognizer():
     #############################################
 
     def encode_faces(self, image):
-        def normalize(enc):
-            return enc
-
         face_locations, _ = self.detect_faces(image)
-        encodings = [normalize(np.array(self._encoder.encode(image, face_rect))) 
-                        for face_rect in face_locations]
+        encodings = [self._encoder.encode(image, face_rect) for face_rect in face_locations]
         return encodings, face_locations
 

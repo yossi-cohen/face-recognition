@@ -12,6 +12,8 @@ import tensorflow as tf
 import facenet.src.facenet as facenet
 from scipy import misc
 
+from sklearn import preprocessing
+
 #lilo (DLIB is the only one that actually works ok, check out the code for the rest!!!)
 class FaceEncoderModels(Enum):
     DLIB          = 0    # DLIB ResNet
@@ -32,7 +34,9 @@ class FaceEncoder():
             self._model = FaceEncoder_FaceNet_Keras()
     
     def encode(self, image, face_rect):
-        return self._model.encode(image, face_rect)
+        # normalize encodings
+        enc = self._model.encode(image, face_rect)
+        return preprocessing.normalize(np.array([enc]) , norm='l2')
 
 class FaceEncoder_DLIB_RESNET():
     def __init__(self):
@@ -44,7 +48,7 @@ class FaceEncoder_DLIB_RESNET():
     def encode(self, image, face_rect):
         landmarks = self._landmarks_detector.landmarks(image, face_rect)
         encoding = self._model.compute_face_descriptor(image, landmarks)
-        return encoding
+        return np.array(encoding)
 
 class FaceEncoder_OpenFace():
     def __init__(self, training=False):

@@ -66,14 +66,17 @@ class FaceDb():
 
 	def match(self, unknown_face_encodings, threshold=None, optimize=False):
 		"""
-		Match a list of face encodings to known face encodings in the db.
-		:param: unknown_face_encodings - a list of face encodings to match.
-		:return: (id, face_distance) - use get_name(id) to get the label for the id.
+		Match each of the unknown-face-encodings to the known-face-encodings in the db.
+		:param: unknown_face_encodings - a list of unknown face encodings to match.
+		:return: a list of tuples [(id, face_distance)] of best matches for each of the 
+		         unknown encodings.  use get_name(id) to get the label for the id.
 		"""
 		matches = []
 		known_face_encodings = self.db['encodings']
 		for unknown_enc in unknown_face_encodings:
+
 			distances = self.face_distance(known_face_encodings, unknown_enc)
+			
 			face_index = np.argmin(distances)
 			distance = distances[face_index]
 			
@@ -95,7 +98,7 @@ class FaceDb():
 
 				# discard if names differ
 				if name1 != name2:
-					if abs(d1 - d2) < 0.08:
+					if abs(d1 - d2) < 0.06:
 						matches.append((-1, distance))
 						continue
 				else: # name1 == name2
