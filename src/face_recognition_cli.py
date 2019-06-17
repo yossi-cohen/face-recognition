@@ -3,8 +3,9 @@ import argparse
 
 from lib.detection import FaceDetector
 from lib.landmarks import Dlib_LandmarkDetector
-from lib.encoding import FaceRecognizer
+from lib.encoding import FaceEncoder, FaceEncoderModels
 from lib.face_db import FaceDb
+from lib.face_rec import FaceRecognizer
 
 from examples.face_recognition_image import recognize_faces_in_image
 from examples.face_recognition_video import recognize_faces_in_video_file
@@ -21,31 +22,35 @@ def main():
             print('deleting', FACE_DB_PATH)
             os.remove(FACE_DB_PATH)
         #lilo: face_db = FaceDb(FACE_DB_PATH)
-        fd = FaceDetector(method=args['method'], optimize=True)
-        fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
+        detector = FaceDetector(method=args['method'], optimize=True)
+        encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
+        fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
         fr.add_faces(path=args['known_faces'])
         return 0
 
     if args['add']:
         image_path = args['image_path']
         if image_path:
-            fd = FaceDetector(method=args['method'], optimize=True)
-            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
+            detector = FaceDetector(method=args['method'], optimize=True)
+            encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
+            fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
             fr.add_face(path=image_path)
             return 0
 
     elif args['recognize']:
         if args['live']:
-            fd = FaceDetector(method=args['method'], optimize=False)
-            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
+            detector = FaceDetector(method=args['method'], optimize=False)
+            encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
+            fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
             recognize_faces_in_live_cam(fr, 
                         threshold=args['threshold'] if args['threshold'] else 0.55, 
                         detect_every_n_frames=args['detect_every_n_frames'])
             return 0
         
         elif args['video_path']:
-            fd = FaceDetector(method=args['method'], optimize=False)
-            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
+            detector = FaceDetector(method=args['method'], optimize=False)
+            encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
+            fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
             recognize_faces_in_video_file(fr, 
                         video_path=args['video_path'], 
                         threshold=args['threshold'] if args['threshold'] else 0.55, 
@@ -53,8 +58,9 @@ def main():
             return 0
         
         elif args['image_path']:
-            fd = FaceDetector(method=args['method'], optimize=True)
-            fr = FaceRecognizer(face_detector=fd, face_db=FaceDb(FACE_DB_PATH))
+            detector = FaceDetector(method=args['method'], optimize=True)
+            encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
+            fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
             recognize_faces_in_image(fr, 
                                      image_path=args['image_path'], 
                                      threshold=args['threshold'] if args['threshold'] else 0.57, 

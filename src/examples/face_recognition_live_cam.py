@@ -30,7 +30,7 @@ def recognize_faces_in_live_cam(fr,
             frame_count += 1
             if (frame_count % detect_every_n_frames) == 0:
                 boxes = fr.face_detection(frame)
-                matches = fr.face_recognition(image=frame, 
+                matches = fr.identify(image=frame, 
                                     face_locations=boxes, 
                                     threshold=threshold, 
                                     optimize=False)

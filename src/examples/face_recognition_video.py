@@ -49,7 +49,7 @@ def recognize_faces_in_video_file(fr, video_path,
         # detect faces every N frames to speed up processing.
         frame_count += 1
         if (frame_count % detect_every_n_frames) == 0:
-            matches = fr.face_recognition(image=frame, 
+            matches = fr.identify(image=frame, 
                                 face_locations=fr.face_detection(frame), 
                                 threshold=threshold, 
                                 optimize=False)

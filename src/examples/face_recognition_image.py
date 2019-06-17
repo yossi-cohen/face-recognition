@@ -39,7 +39,7 @@ def recognize_faces_in_image(fr, image_path,
         image = imutils.resize(image, width=output_res[1])
 
         # recognize faces
-        matches = fr.face_recognition(image=image, threshold=threshold, optimize=True)
+        matches = fr.identify(image=image, threshold=threshold, optimize=True)
 
         # print to console
         num_matches = len(matches)
