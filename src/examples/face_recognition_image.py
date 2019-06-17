@@ -38,7 +38,7 @@ def recognize_faces_in_image(fr, image_path,
         # resize image (keep aspect ratio)
         image = imutils.resize(image, width=output_res[1])
 
-        # recognize faces
+        # identify faces
         matches = fr.identify(image=image, threshold=threshold, optimize=True)
 
         # print to console

@@ -79,7 +79,7 @@ def create_argparser():
         help="add a single face to face-db (use with '--add --image_path' or -ai).")
     parser.add_argument("-r", "--recognize", action="store_true", 
         default=False, 
-        help="recognize faces (image/video/livecam).")
+        help="identify faces (image/video/livecam).")
     parser.add_argument("-k", "--known_faces", type=str, 
         default="examples/face_recognition/known_faces", 
         metavar='', help="known faces folder path")
@@ -100,7 +100,7 @@ def create_argparser():
         metavar='', help="input image path")
     parser.add_argument("-l", "--live", action="store_true", 
         default=False, 
-        help="recognize faces (image/video/livecam).")
+        help="use livecam as input.")
     return parser
 
 if __name__ == '__main__':    
