@@ -20,6 +20,7 @@ def detect_faces_in_image(image_path, method, threshold=None):
         image_paths.append(image_path)
     
     # shuffle images
+    random.seed(5)
     random.shuffle(image_paths)
 
     # create the face detector

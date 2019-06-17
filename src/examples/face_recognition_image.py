@@ -23,6 +23,7 @@ def recognize_faces_in_image(fr, image_path,
         image_paths.append(image_path)
     
     # shuffle images
+    random.seed(5)
     random.shuffle(image_paths)
 
     # process images
