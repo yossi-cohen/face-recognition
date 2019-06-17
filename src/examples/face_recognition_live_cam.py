@@ -29,11 +29,8 @@ def recognize_faces_in_live_cam(fr,
             # only process every N frames to speed up processing.
             frame_count += 1
             if (frame_count % detect_every_n_frames) == 0:
-                boxes = fr.face_detection(frame)
-                matches = fr.identify(image=frame, 
-                                    face_locations=boxes, 
-                                    threshold=threshold, 
-                                    optimize=False)
+                matches = fr.identify(image=frame, threshold=threshold, optimize=False)
+            
             # display the results
             for m in matches:
                 box, id, distance = m

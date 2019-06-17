@@ -25,19 +25,10 @@ def main():
         detector = FaceDetector(method=args['method'], optimize=True)
         encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
         fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
-        fr.add_faces(path=args['known_faces'])
+        fr.train_known_faces(path=args['known_faces'])
         return 0
 
-    if args['add']:
-        image_path = args['image_path']
-        if image_path:
-            detector = FaceDetector(method=args['method'], optimize=True)
-            encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
-            fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
-            fr.add_face(path=image_path)
-            return 0
-
-    elif args['recognize']:
+    if args['recognize']:
         if args['live']:
             detector = FaceDetector(method=args['method'], optimize=False)
             encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
@@ -74,9 +65,6 @@ def create_argparser():
     parser.add_argument("-s", "--scan", action="store_true", 
         default=False, 
         help="add images to face-db (scan 'known_faces' folder).")
-    parser.add_argument("-a", "--add", action="store_true", 
-        default=False, 
-        help="add a single face to face-db (use with '--add --image_path' or -ai).")
     parser.add_argument("-r", "--recognize", action="store_true", 
         default=False, 
         help="identify faces (image/video/livecam).")
