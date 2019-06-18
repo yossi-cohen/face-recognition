@@ -6,6 +6,11 @@ RESOLUTION_VGA    = (640, 480)
 RESOLUTION_HD     = (1280, 720)
 RESOLUTION_FULLHD = (1920, 1080)
 
+# keys for image display navigation
+KEY_ESC = 27
+KEY_SPACE = 32
+KEY_LEFT_ARROW = 81
+
 def draw_bounding_box(frame, face_rect):
     # draw a box around the face
     x, y, w, h = face_rect

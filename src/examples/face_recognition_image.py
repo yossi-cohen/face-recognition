@@ -28,7 +28,10 @@ def recognize_faces_in_image(fr, image_path,
 
     # process images
     do_create_window =  True
-    for image_path in image_paths:
+    i = 0
+    while True:
+        image_path = image_paths[i]
+    # for image_path in image_paths:
         print()
         print('matching:', image_path)
 
@@ -78,12 +81,23 @@ def recognize_faces_in_image(fr, image_path,
 
             # quit on "q"
             quit = False
-            key = cv2.waitKey(0) & 0xFF
-            if key == ord("q"):
-                quit = True
+            while True:
+                key = cv2.waitKey(0) & 0xFF
+                if KEY_ESC == key or KEY_SPACE == key:
+                    break # next image
+                elif ord("q") == key:
+                    quit = True
+                    break
+                elif KEY_LEFT_ARROW == key:
+                    break
 
             if quit:
                 break # user asked to quit
+
+            if KEY_LEFT_ARROW == key: # left key -> back
+                i = max(i-1, 0)
+                continue
+            i += 1
     
     # cleanup
     cv2.destroyAllWindows()
