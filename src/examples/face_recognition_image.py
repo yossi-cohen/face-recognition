@@ -28,10 +28,10 @@ def recognize_faces_in_image(fr, image_path,
 
     # process images
     do_create_window =  True
+
     i = 0
     while True:
         image_path = image_paths[i]
-    # for image_path in image_paths:
         print()
         print('matching:', image_path)
 
@@ -72,7 +72,8 @@ def recognize_faces_in_image(fr, image_path,
         if disply_image:
             if do_create_window:
                 do_create_window = False
-                window_name = image_path.split(os.path.sep)[-1]
+                #window_name = image_path.split(os.path.sep)[-1]
+                window_name = 'face recognition'
                 cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
                 cv2.moveWindow(window_name, 500, 50)
                 cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)

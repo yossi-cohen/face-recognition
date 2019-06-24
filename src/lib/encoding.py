@@ -36,6 +36,7 @@ class FaceEncoder():
     def encode(self, image, face_rect):
         # normalize encodings
         enc = self._model.encode(image, face_rect)
+        # return np.array([enc])
         return preprocessing.normalize(np.array([enc]) , norm='l2')
 
 class FaceEncoder_DLIB_RESNET():

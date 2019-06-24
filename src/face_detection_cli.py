@@ -6,7 +6,7 @@ from examples.face_detection_image import detect_faces_in_image
 def create_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--method", type=str, 
-        default="dnn",
+        default="mtcnn",
         metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
     parser.add_argument("-t", "--threshold", type=float, 
         default=0.4,
