@@ -56,9 +56,6 @@ def register(detector_method,
     print("Make sure your face is inside the circular region!")
     print("")
 
-    # frame_count = 0
-    # detect_every_n_frames = 1
-
     while True:
         # read a frame
         ret, frame = cap.read()
@@ -83,22 +80,6 @@ def register(detector_method,
         # detect faces in the frame and 
         # draw bounding box around the face
         (crop_left, crop_top, crop_right, crop_bottom) = (0, 0, frame_width, frame_height)
-
-        #lilo
-        # # only process every N frames to speed up processing.
-        # frame_count += 1
-        # if (frame_count % detect_every_n_frames) == 0:
-        #     matches = fr.identify(frame, threshold=0.3, optimize=True)
-        #     # display the results
-        #     for m in matches:
-        #         # print('lilo --------------- m:', m)
-        #         face_rect, id, distance, gender = m
-        #         draw_bounding_box(frame, face_rect)
-        #         if id < 0:
-        #             draw_label(fg, face_rect, text='unknown ({})'.format(gender), font_scale=0.8)
-        #         else:
-        #             draw_label(fg, face_rect, text='{} ({}) ({:.2f})'.format(fr.get_name(id), gender, distance), font_scale=0.8)
-        #         break
 
         face_locations, confidence = face_detector.detect(frame)
         for (index, face_rect) in enumerate(face_locations):
@@ -151,7 +132,6 @@ def create_argparser():
         metavar='', help="path for captured images")
     parser.add_argument("-m", "--method", type=str, 
         default="dnn",
-        #default="mtcnn",
         metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
     parser.add_argument("-t", "--threshold", type=float, 
         default=0.9,
