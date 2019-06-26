@@ -66,6 +66,7 @@ class FaceDb():
 		:return: a tuple (id, face_distance) of best match for the unknown encodings. 
 		         use get_name(id) to get the label for the id.
 		"""
+
 		known_face_encodings = self.db['encodings']
 
 		# compare enc to known-face-encodings to get all euclidean distances.
@@ -76,7 +77,10 @@ class FaceDb():
 		min_distance = distances[face_index]
 
 		# optimization if min_distance >= threshold
-		if optimize and threshold and min_distance >= threshold:
+		if threshold and min_distance >= threshold:
+			if not optimize:
+				return -1, min_distance
+
 			print('*** distance > threshold ({} > {})'.format(min_distance, threshold))
 			top_two = np.argsort(distances)[:2]
 			idx1 = top_two[0]

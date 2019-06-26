@@ -22,9 +22,6 @@ def recognize_faces_in_live_cam(fr,
         # # resize frame of video to 1/4 size for faster face recognition processing
         # small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-        # # convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
-        # rgb_small_frame = small_frame[:, :, ::-1]
-
         if DO_RECOGNITION:
             # only process every N frames to speed up processing.
             frame_count += 1
@@ -33,28 +30,12 @@ def recognize_faces_in_live_cam(fr,
             
             # display the results
             for m in matches:
-                box, id, distance, gender = m
-                x, y, w, h = box
-
-                # lilo:TODO
-                # # scale back up face locations since the frame we detected in 
-                # # was scaled to 1/4 size
-                # y *= 4
-                # w *= 4
-                # h *= 4
-                # x *= 4
-
+                face_rect, id, distance, gender = m
+                draw_bounding_box(frame, face_rect)
                 if id < 0:
-                    # display face location
-                    cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 1)
+                    draw_label(frame, face_rect, text='unknown ({})'.format(gender))
                 else:
-                    # display name (distance)
-                    x_display = x + int(w/3)
-                    y_display = y - 10 if y - 10 > 10 else y + 10
-                    text = '{} ({:.3f})'.format(fr.get_name(id), distance)
-                    cv2.putText(frame, text, (x_display, y_display), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 
-                                0.40, (0, 255, 0), 1)
+                    draw_label(frame, face_rect, text='{} ({}) ({:.2f})'.format(fr.get_name(id), gender, distance))
 
         # show the frame
         cv2.imshow('live-video', frame)

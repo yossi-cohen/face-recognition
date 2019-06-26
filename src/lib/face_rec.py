@@ -68,8 +68,9 @@ class FaceRecognizer():
     #############################################
 
     def identify(self, image, threshold=None, optimize=False):
-
-        """ return a list of (box, id, distance) for identified faces in an image """
+        """
+        return a list of (box, id, distance) for identified faces in an image
+        """
 
         # we may get more than one encodings if the image contains more that one face.
         encodings, face_locations = self.encode_faces(image)

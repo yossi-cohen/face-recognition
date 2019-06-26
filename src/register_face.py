@@ -11,13 +11,14 @@ import datetime
 import cv2
 import numpy as np
 from lib.detection import FaceDetector
+from examples.util import *
 
 WINDOW_NAME = "Face_Registration"
 
 RESOLUTION_QVGA   = (320, 240)
 RESOLUTION_VGA    = (640, 480)
 
-def process_faceenrollment(detector_method, cam_resolution=RESOLUTION_QVGA):
+def process_faceenrollment(detector_method, cam_resolution=RESOLUTION_QVGA, capture_prefix=None, capture_dir=None):
 
     # init capture
     cap = cv2.VideoCapture(0)
@@ -34,7 +35,7 @@ def process_faceenrollment(detector_method, cam_resolution=RESOLUTION_QVGA):
     face_detector = FaceDetector(method=detector_method, threshold=0.9, optimize=True)
 
     print("")
-    print("Press SPACEBAR to capture, esc or q to quit.")
+    print("Press <SPACEBAR> or <ENTER> to capture, esc or q to quit.")
     print("Make sure your face is inside the circular region!")
     print("")
 
@@ -73,21 +74,35 @@ def process_faceenrollment(detector_method, cam_resolution=RESOLUTION_QVGA):
 
         # Check for user actions
         keyPressed = cv2.waitKey(1) & 0xFF
-        if keyPressed == 27: # <ESC> to exit
+        if KEY_ESC == keyPressed: # press <ESC> to exit
             break
-        if keyPressed == 13: # <Enter> to save the frame as an image
+        
+        # <ENTER> or <SPACEBAR> to save the frame as an image
+        if KEY_ENTER == keyPressed or KEY_SPACEBAR == keyPressed:
             crop_left = max(crop_left-20, 0)
             crop_top = max(crop_top-20, 0)
             crop_right = min(crop_right+20, frame_width)
             crop_bottom = min(crop_bottom+20, frame_height)
             croped_frame = frame[crop_top:crop_bottom, crop_left:crop_right]
-            cv2.imwrite(WINDOW_NAME + "_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg", croped_frame)
+            if not capture_dir:
+                capture_dir = 'capture'
+            if not os.path.exists(capture_dir):
+                os.mkdir(capture_dir)
+            if not capture_prefix:
+                capture_prefix = WINDOW_NAME
+            capture_image_file = capture_prefix + '_' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.jpg'
+            capture_path = os.path.join(capture_dir, capture_image_file)
+            cv2.imwrite(capture_path, croped_frame)
 
     cap.release()
     cv2.destroyAllWindows()
 
 def create_argparser():
     parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--name", type=str, 
+        metavar='', help="name prefix for captured image")
+    parser.add_argument("-p", "--path", type=str, 
+        metavar='', help="path for captured images")
     parser.add_argument("-m", "--method", type=str, 
         default="dnn",
         metavar='', help="face detection method to use: 'haar', 'lbp', 'hog', 'dnn', 'mtcnn'")
@@ -99,7 +114,7 @@ def create_argparser():
 def main():
     parser = create_argparser()
     args = vars(parser.parse_args())
-    process_faceenrollment(args['method'], cam_resolution=RESOLUTION_QVGA)
+    process_faceenrollment(args['method'], cam_resolution=RESOLUTION_QVGA, capture_dir=args['path'], capture_prefix=args['name'])
 
 if __name__ == '__main__':
     main()
