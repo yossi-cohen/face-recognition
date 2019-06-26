@@ -3,18 +3,28 @@ import math
 import pickle
 import numpy as np
 
+FACE_DB_PATH = 'examples/face_recognition/facedb.pkl'
+
 class FaceDb():
 	def __init__(self, db_path= None):
 		# load/create face database
 		self.db_path = db_path if None != db_path else 'facedb.pkl'
 		if os.path.exists(db_path):
-			print('loading faces from:', db_path)
-			with open(db_path, 'rb') as f:
-				self.db = pickle.load(f)
-				self.db['encodings'] = np.array(self.db['encodings'])
-		else:
-			# start with an empty db
-			self.db = { 'indices_by_name': {}, 'name_by_index': {}, 'encodings': np.array([]) }
+			self.load()
+		else: # start with an empty db
+			self.indices_by_name = {}
+			self.name_by_index = {}
+			self.encodings = np.array([])
+
+	def load(self):
+		with open(self.db_path, 'rb') as f:
+			self_dict = pickle.load(f)
+			self.__dict__.update(self_dict) 
+
+
+	def flush(self):
+		with open(self.db_path, 'wb') as f:
+			pickle.dump(self.__dict__, f, pickle.HIGHEST_PROTOCOL)
 
 	def add_encoding(self, name, enc, flush=True):
 		"""
@@ -24,40 +34,32 @@ class FaceDb():
 		:param id - id for the face encoding (default None -> returns generated id).
 		:param flush - whether or not to flush database to secondary storage (default True). 
 		"""
-		indices_by_name = self.db['indices_by_name']
-		name_by_index = self.db['name_by_index']
-		known_face_encodings = self.db['encodings']
 		
 		# add enc to known_face_encodings and get its row index
-		if known_face_encodings.shape[0] == 0:
-			known_face_encodings = enc.reshape(1,-1)
+		if self.encodings.shape[0] == 0:
+			self.encodings = enc.reshape(1,-1)
 		else:
-			known_face_encodings = np.vstack((known_face_encodings, enc))
+			self.encodings = np.vstack((self.encodings, enc))
 
-		self.db['encodings'] = known_face_encodings
-		index = known_face_encodings.shape[0] - 1
+		index = self.encodings.shape[0] - 1
 
 		# update name_by_index dictionary
-		name_by_index[index] = name
+		self.name_by_index[index] = name
 
 		# add the newly added index to the indices of name
-		indices = indices_by_name.get(name)
+		indices = self.indices_by_name.get(name)
 		if None == indices:
 			indices = []
-			indices_by_name[name] = indices
+			self.indices_by_name[name] = indices
 		indices.append(index)
 
 		# flush changes to disk
 		if flush:
 			self.flush()
 
-	def flush(self):
-		with open(self.db_path, 'wb') as f:
-			pickle.dump(self.db, f, pickle.HIGHEST_PROTOCOL)
-
 	def get_name(self, id):
 		"""return person name by id"""
-		return self.db['name_by_index'][id]
+		return self.name_by_index[id]
 
 	def match(self, enc, threshold=None, optimize=False):
 		"""
@@ -67,10 +69,8 @@ class FaceDb():
 		         use get_name(id) to get the label for the id.
 		"""
 
-		known_face_encodings = self.db['encodings']
-
 		# compare enc to known-face-encodings to get all euclidean distances.
-		distances = np.linalg.norm(known_face_encodings - enc, axis=1)
+		distances = np.linalg.norm(self.encodings - enc, axis=1)
 
 		# get the minimum distance		
 		face_index = np.argmin(distances)

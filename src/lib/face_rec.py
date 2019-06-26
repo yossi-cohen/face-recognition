@@ -54,6 +54,41 @@ class FaceRecognizer():
         self._face_db.flush()
     
     #############################################
+    # add a single face encoding to face-db
+    # (image assumed to contain a single face)
+    #############################################
+    def add_face(self, path, label=None):
+
+        # get label from image filename
+        if not label:
+            label = os.path.splitext(os.path.basename(path))[0]
+
+        # read image
+        image = cv2.imread(path)
+
+        self.add_face_from_image(image, label)
+
+    def add_face_from_image(self, image, label):
+
+        # resize image (keep aspect ratio)
+        image = imutils.resize(image, width=400)
+
+        # get face encoding
+        encodings, _ = self.encode_faces(image)
+        
+        if len(encodings) <= 0:
+            print('no faces found in image ({})! skipping.'.format(label))
+            return
+        
+        if len(encodings) > 1:
+            print('image should contain a single face! ({} - {} encodings) skipping.'.format(
+                label, len(encodings)))
+            return
+
+        self._face_db.add_encoding(label, encodings[0], flush=True)
+        print('{} added to face-db'.format(label))
+
+    #############################################
     # get the name (label) of an identified 
     # face given face id.
     #############################################
@@ -99,8 +134,9 @@ class FaceRecognizer():
     # for each face in the image.
     #############################################
 
-    def encode_faces(self, image):
-        face_locations, _ = self.detect_faces(image)
+    def encode_faces(self, image, face_locations=None):
+        if not face_locations:
+            face_locations, _ = self.detect_faces(image)
         encodings = [self._encoder.encode(image, face_rect) for face_rect in face_locations]
         return encodings, face_locations
 

@@ -20,8 +20,8 @@ def draw_bounding_box(frame, face_rect):
 def draw_label(frame, face_rect, text, 
                background=True, 
                below_face=True, 
-               font = cv2.FONT_HERSHEY_PLAIN, 
-               font_scale = 0.8):
+               font=cv2.FONT_HERSHEY_PLAIN, 
+               font_scale=1.0):
      '''
      draw a label with a name below the face
      '''

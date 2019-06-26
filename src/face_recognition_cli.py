@@ -4,14 +4,12 @@ import argparse
 from lib.detection import FaceDetector
 from lib.landmarks import Dlib_LandmarkDetector
 from lib.encoding import FaceEncoder, FaceEncoderModels
-from lib.face_db import FaceDb
 from lib.face_rec import FaceRecognizer
+from lib.face_db import *
 
 from examples.face_recognition_image import recognize_faces_in_image
 from examples.face_recognition_video import recognize_faces_in_video_file
 from examples.face_recognition_live_cam import recognize_faces_in_live_cam
-
-FACE_DB_PATH = 'examples/face_recognition/facedb.pkl'
 
 def main():
     parser = create_argparser()
@@ -22,43 +20,75 @@ def main():
         if os.path.exists(FACE_DB_PATH):
             print('deleting', FACE_DB_PATH)
             os.remove(FACE_DB_PATH)
-        #lilo: face_db = FaceDb(FACE_DB_PATH)
-        detector = FaceDetector(method=args['method'], threshold=threshold, optimize=True)
+        
+        optimize = True
+        if not threshold:
+            threshold = 0.4
+
+        detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
         encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
         fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
         fr.train_known_faces(path=args['known_faces'])
         return 0
 
+    if args['add']:
+        image_path = args['add']
+        if not os.path.isfile(image_path):
+            print('path should point to an image file!')
+            return 0
+
+        optimize = True
+        if not threshold:
+            threshold = 0.4
+
+        detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
+        encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
+        fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
+        fr.add_face(path=image_path) #lilo
+        return 0
+
     if args['recognize']:
         if args['live']:
-            detector = FaceDetector(method=args['method'], threshold=threshold, optimize=False)
+            optimize = False
+            if not threshold:
+                threshold = 0.4
+
+            detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
             encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
             fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
 
             recognize_faces_in_live_cam(fr, 
-                        threshold=threshold if threshold else 0.4, 
+                        threshold=threshold, 
                         detect_every_n_frames=args['detect_every_n_frames'])
             return 0
         
         elif args['video_path']:
-            detector = FaceDetector(method=args['method'], threshold=threshold, optimize=False)
+            optimize = False
+            if not threshold:
+                threshold = 0.4
+
+            detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
             encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
             fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
 
             recognize_faces_in_video_file(fr, 
                         video_path=args['video_path'], 
-                        threshold=threshold if threshold else 0.4, 
+                        threshold=threshold, 
                         detect_every_n_frames=args['detect_every_n_frames'])
             return 0
         
         elif args['image_path']:
-            detector = FaceDetector(method=args['method'], threshold=threshold, optimize=True)
+            optimize = True
+            if not threshold:
+                threshold = 0.4
+
+            detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
             encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
             fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
 
             recognize_faces_in_image(fr, 
                                      image_path=args['image_path'], 
-                                     threshold=threshold if threshold else 0.4, 
+                                     threshold=threshold, 
                                      disply_image=True)
             return 0
 
@@ -69,6 +99,8 @@ def create_argparser():
     parser.add_argument("-s", "--scan", action="store_true", 
         default=False, 
         help="add images to face-db (scan 'known_faces' folder).")
+    parser.add_argument("-a", "--add", type=str, 
+        metavar='', help="add a single face to face-db (usage: '--add [path-to-image]').")
     parser.add_argument("-r", "--recognize", action="store_true", 
         default=False, 
         help="identify faces (image/video/livecam).")
