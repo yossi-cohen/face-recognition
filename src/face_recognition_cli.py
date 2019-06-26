@@ -32,11 +32,6 @@ def main():
         return 0
 
     if args['add']:
-        image_path = args['add']
-        if not os.path.isfile(image_path):
-            print('path should point to an image file!')
-            return 0
-
         optimize = True
         if not threshold:
             threshold = 0.4
@@ -44,7 +39,22 @@ def main():
         detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
         encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
         fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
-        fr.add_face(path=image_path)
+
+        image_path = args['add']
+
+        if os.path.isfile(image_path):
+            # label is file-name without extention
+            label = os.path.splitext(image_path)[0]
+            fr.add_face(path=image_path, label=label)
+        elif os.path.isdir(image_path):
+            if image_path.endswith(os.path.sep):
+                image_path = image_path[:-1]
+            # label is dir-name without extention
+            label = os.path.basename(image_path)
+            for f in os.listdir(image_path):
+                full_path = os.path.join(image_path, f)
+                if os.path.isfile(full_path):
+                    fr.add_face(path=full_path, label=label)
         return 0
 
     if args['recognize']:

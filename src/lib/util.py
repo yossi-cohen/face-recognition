@@ -28,5 +28,6 @@ def enum_known_faces(path):
                 yield label, image_path
         else:
             # single image per label
-            label = os.path.splitext(f)[0] # label is file name without extention
+            # label is file name without extention
+            label = os.path.splitext(f)[0]
             yield label, full_path
