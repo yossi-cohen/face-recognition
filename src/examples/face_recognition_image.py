@@ -84,18 +84,18 @@ def recognize_faces_in_image(fr, image_path,
             quit = False
             while True:
                 key = cv2.waitKey(0) & 0xFF
-                if KEY_ESC == key or KEY_SPACE == key:
+                if key in (KEY_ESC, KEY_ENTER, KEY_SPACEBAR, KEY_RIGHT_ARROW):
                     break # next image
                 elif ord("q") == key:
                     quit = True
                     break
                 elif KEY_LEFT_ARROW == key:
-                    break
+                    break  # prev image
 
             if quit:
                 break # user asked to quit
 
-            if KEY_LEFT_ARROW == key: # left key -> back
+            if KEY_LEFT_ARROW == key: # left key -> prev image
                 i = max(i-1, 0)
                 continue
             i += 1

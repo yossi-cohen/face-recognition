@@ -38,13 +38,7 @@ def recognize_faces_in_video_file(fr, video_path,
         if vflip:
             frame = cv2.flip(frame, 0)
 
-        #lilo
         frame = cv2.resize(frame, resolusion)
-        # (h, w) = frame.shape[:2]
-        # frame = cv2.resize(frame, (resolusion[0], int(h * resolusion[0] / float(w) )))
-
-        # # convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
-        # rgb_small_frame = small_frame[:, :, ::-1]
 
         # detect faces every N frames to speed up processing.
         frame_count += 1

@@ -44,7 +44,7 @@ def main():
         detector = FaceDetector(method=args['method'], threshold=threshold, optimize=optimize)
         encoder = FaceEncoder(model=FaceEncoderModels.DEFAULT)
         fr = FaceRecognizer(detector=detector, encoder=encoder, face_db=FaceDb(FACE_DB_PATH))
-        fr.add_face(path=image_path) #lilo
+        fr.add_face(path=image_path)
         return 0
 
     if args['recognize']:

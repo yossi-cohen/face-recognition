@@ -23,10 +23,6 @@ def recognize_faces_in_live_cam(fr,
     while True:
         ret, frame = cap.read()
 
-        # lilo:TODO
-        # # resize frame of video to 1/4 size for faster face recognition processing
-        # small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-
         if DO_RECOGNITION:
             # only process every N frames to speed up processing.
             frame_count += 1

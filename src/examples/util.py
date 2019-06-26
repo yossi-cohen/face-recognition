@@ -11,6 +11,7 @@ KEY_ESC = 27
 KEY_ENTER = 13
 KEY_SPACEBAR = 32
 KEY_LEFT_ARROW = 81
+KEY_RIGHT_ARROW = 83
 
 def draw_bounding_box(frame, face_rect):
     # draw a box around the face

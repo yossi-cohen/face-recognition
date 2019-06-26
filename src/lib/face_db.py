@@ -69,6 +69,10 @@ class FaceDb():
 		         use get_name(id) to get the label for the id.
 		"""
 
+		if len(self.encodings) == 0:
+			# no encodings yet
+			return -1, 1.0
+
 		# compare enc to known-face-encodings to get all euclidean distances.
 		distances = np.linalg.norm(self.encodings - enc, axis=1)
 

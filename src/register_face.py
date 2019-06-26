@@ -136,7 +136,6 @@ def create_argparser():
     parser.add_argument("-t", "--threshold", type=float, 
         default=0.9,
         metavar='', help="threshold for probability to filter not-so-confident detections")
-
     parser.add_argument("-r", "--register", action="store_true", 
         default=False, 
         help="register captured frames to face-db).")
