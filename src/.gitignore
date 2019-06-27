@@ -4,4 +4,5 @@ __pycache__
 TODO
 facedb.pkl
 **/face_recognition/videos
+*.pyc
 
